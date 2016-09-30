@@ -97,6 +97,16 @@
    */
   MaterialTextfield.prototype.onBlur_ = function(event) {
     this.element_.classList.remove(this.CssClasses_.IS_FOCUSED);
+    this.checkValidity();
+  };
+
+  /**
+   * Handle change.
+   *
+   * @private
+   */
+  MaterialTextfield.prototype.onChange_ = function() {
+    this.checkValidity();
   };
 
   /**
@@ -116,8 +126,17 @@
    */
   MaterialTextfield.prototype.updateClasses_ = function() {
     this.checkDisabled();
-    this.checkValidity();
     this.checkDirty();
+
+    var dirty = this.element_.classList
+      .contains(this.CssClasses_.IS_DIRTY);
+    var required = this.input_.required;
+
+    if (!required ||
+        required && dirty) {
+      this.checkValidity();
+    }
+
     this.checkFocus();
   };
 
@@ -204,6 +223,7 @@
   MaterialTextfield.prototype.enable = function() {
     this.input_.disabled = false;
     this.updateClasses_();
+    this.checkValidity();
   };
   MaterialTextfield.prototype['enable'] = MaterialTextfield.prototype.enable;
 
@@ -219,6 +239,28 @@
     this.updateClasses_();
   };
   MaterialTextfield.prototype['change'] = MaterialTextfield.prototype.change;
+
+  /**
+   * Focus text field.
+   *
+   * @public
+   */
+  MaterialTextfield.prototype.focus = function() {
+    this.input_.focus();
+    this.updateClasses_();
+  };
+  MaterialTextfield.prototype['focus'] = MaterialTextfield.prototype.focus;
+
+  /**
+   * Blur text field.
+   *
+   * @public
+   */
+  MaterialTextfield.prototype.blur = function() {
+    this.input_.blur();
+    this.updateClasses_();
+  };
+  MaterialTextfield.prototype['blur'] = MaterialTextfield.prototype.blur;
 
   /**
    * Initialize element.
@@ -247,10 +289,12 @@
         this.boundFocusHandler = this.onFocus_.bind(this);
         this.boundBlurHandler = this.onBlur_.bind(this);
         this.boundResetHandler = this.onReset_.bind(this);
+        this.boundChangeHandler = this.onChange_.bind(this);
         this.input_.addEventListener('input', this.boundUpdateClassesHandler);
         this.input_.addEventListener('focus', this.boundFocusHandler);
         this.input_.addEventListener('blur', this.boundBlurHandler);
         this.input_.addEventListener('reset', this.boundResetHandler);
+        this.input_.addEventListener('change', this.boundChangeHandler);
 
         if (this.maxRows !== this.Constant_.NO_MAX_ROWS) {
           // TODO: This should handle pasting multi line text.
